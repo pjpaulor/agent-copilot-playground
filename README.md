@@ -58,6 +58,22 @@ Official docs:
 - https://docs.github.com/en/copilot/get-started-with-github-copilot
 - https://code.visualstudio.com/docs/copilot/overview
 
+### GitHub Copilot CLI
+1. Install GitHub CLI (`gh`) and authenticate with your GitHub account.
+2. Install the Copilot CLI extension:
+   ```bash
+   gh extension install github/gh-copilot
+   ```
+3. Use Copilot in terminal, for example:
+   ```bash
+   gh copilot suggest "how do i start this project?"
+   gh copilot explain "npm start"
+   ```
+
+Official docs:
+- https://docs.github.com/en/copilot/how-tos/use-copilot-agents/use-github-copilot-in-the-cli
+- https://docs.github.com/en/copilot/get-started-with-github-copilot
+
 ### OpenAI Codex
 1. Open the Codex getting-started documentation.
 2. Follow setup instructions for your environment/editor.

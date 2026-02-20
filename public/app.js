@@ -127,18 +127,14 @@ function selectAgentSingle(agent) {
 }
 
 function selectAgentForCompare(agent) {
-  if (selectedAgents.length >= 2) {
-    const existingIndex = selectedAgents.findIndex(a => a.id === agent.id);
-    if (existingIndex === -1) {
-      compareMessage.textContent = '⚠️ You can only compare 2 agents at a time. Deselect one first.';
-      compareMessage.style.color = '#c92a2a';
-      return;
-    }
-  }
-  
   const existingIndex = selectedAgents.findIndex(a => a.id === agent.id);
+  
   if (existingIndex !== -1) {
     selectedAgents.splice(existingIndex, 1);
+  } else if (selectedAgents.length >= 2) {
+    compareMessage.textContent = '⚠️ You can only compare 2 agents at a time. Deselect one first.';
+    compareMessage.style.color = '#c92a2a';
+    return;
   } else {
     selectedAgents.push(agent);
   }

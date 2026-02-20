@@ -18,18 +18,30 @@
       <section class="panel">
         <label for="searchInput">Search agents</label>
         <input id="searchInput" type="text" placeholder="Type a name..." />
+        <div class="compare-toggle">
+          <label>
+            <input id="compareModeToggle" type="checkbox" />
+            <span>Compare Mode</span>
+          </label>
+        </div>
       </section>
 
-      <section class="layout">
+      <section class="layout" id="mainLayout">
         <div class="panel">
           <h2>Agents</h2>
           <ul id="agentList" class="agent-list"></ul>
         </div>
 
-        <div class="panel">
+        <div class="panel" id="singleView">
           <h2>Suggestion</h2>
           <div id="suggestionPanel">Select an agent to see a suggestion.</div>
           <canvas id="vizCanvas" width="260" height="120" aria-label="Agent visualization"></canvas>
+        </div>
+
+        <div class="panel compare-view" id="compareView" style="display: none;">
+          <h2>Compare (Select up to 2 agents)</h2>
+          <div id="compareMessage" class="compare-message"></div>
+          <div id="compareContainer" class="compare-container"></div>
         </div>
       </section>
     </main>

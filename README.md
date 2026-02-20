@@ -17,6 +17,7 @@ A minimal Node.js + vanilla JavaScript playground for testing coding copilots on
 - Shows a small list of agents loaded from `public/data/agents.json`.
 - Includes a search box to filter agents by name.
 - Clicking an agent opens a suggestion panel and updates a tiny visualization (color swatch) on a canvas.
+- **Compare Mode**: Toggle compare mode to select and view up to 2 agents side-by-side with their suggestions and color visualizations.
 - Includes two intentional bugs for copilot repair practice.
 - Case-sensitive search match.
 - Stale async selection race when clicking agents quickly.

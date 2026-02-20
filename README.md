@@ -25,14 +25,14 @@ A minimal Node.js + vanilla JavaScript playground for testing coding copilots on
 Paste this exact prompt into GitHub Copilot or OpenAI Codex:
 
 ```text
-In public/app.js, fix the search filtering so it is case-insensitive (for example, searching "alice" should match "Alice"). Keep the logic simple and only change what is needed. Add a one-line inline comment explaining that both strings are normalized to lowercase for case-insensitive comparison.
+When users search for an agent, names should match regardless of uppercase/lowercase letters. Please fix this behavior so search feels natural (for example, typing "alice" should still find "Alice"). Keep the change minimal and add one short inline comment explaining what was adjusted.
 ```
 
 ## Prompt to fix the complex bug
 Paste this exact prompt into GitHub Copilot or OpenAI Codex:
 
 ```text
-In public/app.js, fix the stale async selection race in selectAgent: rapid clicks can apply older delayed updates after newer selections. Ensure only the most recent click is allowed to update the suggestion panel and canvas. Keep the simulated delay behavior, and add a one-line inline comment explaining how stale updates are ignored.
+Sometimes if a user clicks agents quickly, the UI can show details from an older click instead of the most recent one. Please fix it so the app always reflects the latest selection, even during rapid clicking. Keep the behavior otherwise the same and add one short inline comment describing the fix.
 ```
 
 ## Repro steps for intentional bugs

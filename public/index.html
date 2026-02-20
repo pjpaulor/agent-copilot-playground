@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Agent Playground</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <h1>Agent Playground</h1>
+      <p class="subtitle">Tiny front-end experiment for coding copilots</p>
+
+      <section class="panel">
+        <label for="searchInput">Search agents</label>
+        <input id="searchInput" type="text" placeholder="Type a name..." />
+      </section>
+
+      <section class="layout">
+        <div class="panel">
+          <h2>Agents</h2>
+          <ul id="agentList" class="agent-list"></ul>
+        </div>
+
+        <div class="panel">
+          <h2>Suggestion</h2>
+          <div id="suggestionPanel">Select an agent to see a suggestion.</div>
+          <canvas id="vizCanvas" width="260" height="120" aria-label="Agent visualization"></canvas>
+        </div>
+      </section>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

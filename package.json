@@ -1,0 +1,17 @@
+{
+  "name": "agent-copilot-playground",
+  "version": "1.0.0",
+  "description": "Minimal Node.js static app for testing coding copilots",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "copilot",
+    "codex",
+    "playground",
+    "vanilla-js"
+  ],
+  "author": "",
+  "license": "MIT"
+}

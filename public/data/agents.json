@@ -1,0 +1,30 @@
+[
+  {
+    "id": "a1",
+    "name": "Alice",
+    "role": "Planner",
+    "color": "#ff6b6b",
+    "suggestion": "Break the task into 3 small steps before coding."
+  },
+  {
+    "id": "a2",
+    "name": "Bruno",
+    "role": "Debugger",
+    "color": "#4dabf7",
+    "suggestion": "Reproduce the issue first and validate with one focused test."
+  },
+  {
+    "id": "a3",
+    "name": "Carla",
+    "role": "Reviewer",
+    "color": "#51cf66",
+    "suggestion": "Check edge cases and error handling before merging."
+  },
+  {
+    "id": "a4",
+    "name": "Diego",
+    "role": "Optimizer",
+    "color": "#fcc419",
+    "suggestion": "Measure baseline performance before changing implementation."
+  }
+]

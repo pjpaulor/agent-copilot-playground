@@ -17,6 +17,9 @@ A minimal Node.js + vanilla JavaScript playground for testing coding copilots on
 - Shows a small list of agents loaded from `public/data/agents.json`.
 - Includes a search box to filter agents by name.
 - Clicking an agent opens a suggestion panel and updates a tiny visualization (color swatch) on a canvas.
+- Includes two intentional bugs for copilot repair practice.
+- Case-sensitive search match.
+- Stale async selection race when clicking agents quickly.
 
 ## Prompt to fix the bug
 Paste this exact prompt into GitHub Copilot or OpenAI Codex:
@@ -24,6 +27,26 @@ Paste this exact prompt into GitHub Copilot or OpenAI Codex:
 ```text
 In public/app.js, fix the search filtering so it is case-insensitive (for example, searching "alice" should match "Alice"). Keep the logic simple and only change what is needed. Add a one-line inline comment explaining that both strings are normalized to lowercase for case-insensitive comparison.
 ```
+
+## Prompt to fix the complex bug
+Paste this exact prompt into GitHub Copilot or OpenAI Codex:
+
+```text
+In public/app.js, fix the stale async selection race in selectAgent: rapid clicks can apply older delayed updates after newer selections. Ensure only the most recent click is allowed to update the suggestion panel and canvas. Keep the simulated delay behavior, and add a one-line inline comment explaining how stale updates are ignored.
+```
+
+## Repro steps for intentional bugs
+1. Case-sensitive search bug:
+   - Type `Alice` in the search box, then type `alice`.
+   - `Alice` matches, but `alice` does not.
+2. Stale async selection race bug:
+   - Click `Alice`, then quickly click `Bruno` (or `Carla`) within about 1 second.
+   - The newer selection appears first, but the older `Alice` result can overwrite it afterward.
+
+## Expected fixed behavior checklist
+- Search is case-insensitive: `Alice`, `alice`, and `ALICE` all return the same match.
+- Rapid agent clicks never allow an older delayed selection to overwrite the most recent selection.
+- Suggestion panel and canvas always stay in sync with the latest clicked agent.
 
 ## How to install copilots
 ### GitHub Copilot (VS Code)

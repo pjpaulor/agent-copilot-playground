@@ -39,8 +39,7 @@ function renderAgents(items) {
     button.className = 'agent-btn';
     button.textContent = `${agent.name} (${agent.role})`;
     button.addEventListener('click', () => {
-      suggestionPanel.textContent = agent.suggestion;
-      drawAgent(agent);
+      selectAgent(agent);
     });
 
     li.appendChild(button);
@@ -66,6 +65,10 @@ function drawAgent(agent) {
   ctx.fillStyle = agent.color;
   ctx.fillRect(20, 25, 100, 70);
 
+  ctx.strokeStyle = '#132432';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(16, 21, 108, 78);
+
   ctx.fillStyle = '#1b2430';
   ctx.font = 'bold 14px sans-serif';
   ctx.fillText(agent.name, 140, 52);
@@ -73,4 +76,15 @@ function drawAgent(agent) {
   ctx.font = '12px sans-serif';
   ctx.fillStyle = '#5f6b7a';
   ctx.fillText(agent.role, 140, 74);
+}
+
+function selectAgent(agent) {
+  suggestionPanel.textContent = `Analyzing ${agent.name}...`;
+  const delayMs = agent.id === 'a1' ? 900 : 180;
+
+  // BUG: delayed updates are not cancelled or ignored, so stale clicks can overwrite newer selections.
+  setTimeout(() => {
+    suggestionPanel.textContent = agent.suggestion;
+    drawAgent(agent);
+  }, delayMs);
 }

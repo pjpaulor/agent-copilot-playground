@@ -83,5 +83,21 @@ Official docs:
 - https://platform.openai.com/docs/guides/codex
 - https://help.openai.com/
 
+### OpenAI Codex CLI
+1. Install Codex CLI:
+   ```bash
+   npm install -g @openai/codex
+   ```
+2. In your project folder, start Codex:
+   ```bash
+   codex
+   ```
+3. Ask in plain language (for example): `Fix the search so it is case-insensitive.`
+
+Official docs:
+- https://platform.openai.com/docs/guides/codex
+- https://help.openai.com/en/articles/11096431
+- https://github.com/openai/codex
+
 ## How I designed the repo
 I kept the project intentionally small and flat so copilots can understand and edit single files quickly: one static server, one HTML page, one JS file for app logic, one CSS file, and one JSON data file.

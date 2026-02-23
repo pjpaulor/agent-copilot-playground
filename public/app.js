@@ -1,37 +1,77 @@
 const searchInput = document.getElementById('searchInput');
+const colorFilter = document.getElementById('colorFilter');
 const agentList = document.getElementById('agentList');
 const suggestionPanel = document.getElementById('suggestionPanel');
 const canvas = document.getElementById('vizCanvas');
 const ctx = canvas.getContext('2d');
 
 let agents = [];
+let selectedAgentId = null;
 
 fetch('./data/agents.json')
   .then((res) => res.json())
   .then((data) => {
     agents = data;
-    renderAgents(agents);
+    populateColorFilter();
+    restoreFilters();
+    applyFilters();
     drawPlaceholder();
   })
   .catch(() => {
     suggestionPanel.textContent = 'Could not load agents data.';
   });
 
-searchInput.addEventListener('input', (event) => {
-  const query = event.target.value.trim();
-  const filtered = agents.filter((agent) => agent.name.includes(query)); // BUG: search is case-sensitive
-  renderAgents(filtered);
+searchInput.addEventListener('input', () => {
+  localStorage.setItem('searchText', searchInput.value);
+  applyFilters();
 });
+
+colorFilter.addEventListener('change', () => {
+  localStorage.setItem('selectedColor', colorFilter.value);
+  applyFilters();
+});
+
+function populateColorFilter() {
+  const colors = [...new Set(agents.map(a => a.color))];
+  colors.forEach(color => {
+    const agent = agents.find(a => a.color === color);
+    const option = document.createElement('option');
+    option.value = color;
+    option.textContent = `${color.toUpperCase().replace('#', '')} (${agent.name})`;
+    colorFilter.appendChild(option);
+  });
+}
+
+function restoreFilters() {
+  searchInput.value = localStorage.getItem('searchText') || '';
+  colorFilter.value = localStorage.getItem('selectedColor') || '';
+}
+
+function applyFilters() {
+  const query = searchInput.value.trim().toLowerCase();
+  const color = colorFilter.value;
+  const filtered = agents.filter((agent) => {
+    const matchesSearch = !query || agent.name.toLowerCase().includes(query);
+    const matchesColor = !color || agent.color === color;
+    return matchesSearch && matchesColor;
+  });
+  renderAgents(filtered);
+}
+
+// To verify: Open browser DevTools → Application → Local Storage → check searchText and selectedColor keys persist across page reloads
 
 function renderAgents(items) {
   agentList.innerHTML = '';
 
   if (!items.length) {
     const empty = document.createElement('li');
-    empty.textContent = 'No agents found.';
+    empty.textContent = 'No agents found';
     agentList.appendChild(empty);
     return;
   }
+
+  const currentAgent = selectedAgentId && items.find(a => a.id === selectedAgentId);
+  const firstAgent = items[0];
 
   items.forEach((agent) => {
     const li = document.createElement('li');
@@ -45,6 +85,12 @@ function renderAgents(items) {
     li.appendChild(button);
     agentList.appendChild(li);
   });
+
+  if (currentAgent) {
+    selectAgent(currentAgent);
+  } else if (!selectedAgentId && firstAgent) {
+    selectAgent(firstAgent);
+  }
 }
 
 function drawPlaceholder() {
@@ -79,6 +125,7 @@ function drawAgent(agent) {
 }
 
 function selectAgent(agent) {
+  selectedAgentId = agent.id;
   suggestionPanel.textContent = `Analyzing ${agent.name}...`;
   const delayMs = agent.id === 'a1' ? 900 : 180;
 

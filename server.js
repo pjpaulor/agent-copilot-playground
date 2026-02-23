@@ -19,7 +19,7 @@ const MIME_TYPES = {
 function getSafeFilePath(urlPath) {
   const decoded = decodeURIComponent(urlPath.split('?')[0]);
   const normalized = path.normalize(decoded).replace(/^\.\.(\/|\\|$)/, '');
-  const relativePath = normalized === '/' ? '/index.html' : normalized;
+  const relativePath = normalized === '/' || normalized === '\\' ? '/index.html' : normalized;
   return path.join(PUBLIC_DIR, relativePath);
 }
 

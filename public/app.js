@@ -1,28 +1,63 @@
 const searchInput = document.getElementById('searchInput');
+const colorFilter = document.getElementById('colorFilter');
 const agentList = document.getElementById('agentList');
 const suggestionPanel = document.getElementById('suggestionPanel');
 const canvas = document.getElementById('vizCanvas');
 const ctx = canvas.getContext('2d');
 
 let agents = [];
+let selectedAgent = null;
 
-fetch('./data/agents.json')
-  .then((res) => res.json())
-  .then((data) => {
-    agents = data;
-    renderAgents(agents);
-    drawPlaceholder();
-  })
-  .catch(() => {
-    suggestionPanel.textContent = 'Could not load agents data.';
-  });
+// Load saved state from localStorage
+function loadState() {
+  const savedSearch = localStorage.getItem('agentSearch');
+  const savedColor = localStorage.getItem('agentColor');
+  const savedAgent = localStorage.getItem('selectedAgent');
+  
+  if (savedSearch) searchInput.value = savedSearch;
+  if (savedColor) colorFilter.value = savedColor;
+  if (savedAgent) {
+    selectedAgent = agents.find(a => a.id === savedAgent);
+  }
+}
 
-searchInput.addEventListener('input', (event) => {
-  const query = event.target.value.trim();
-  const filtered = agents.filter((agent) => agent.name.includes(query)); // BUG: search is case-sensitive
-  renderAgents(filtered);
-});
+// Save state to localStorage
+function saveState() {
+  localStorage.setItem('agentSearch', searchInput.value);
+  localStorage.setItem('agentColor', colorFilter.value);
+  if (selectedAgent) {
+    localStorage.setItem('selectedAgent', selectedAgent.id);
+  }
+}
 
+// Get unique colors from agents
+function getUniqueColors() {
+  return [...new Set(agents.map(a => a.color))];
+}
+
+// Combined filter function
+function filterAgents() {
+  const query = searchInput.value.trim().toLowerCase();
+  const color = colorFilter.value;
+  
+  let filtered = agents;
+  
+  // Filter by search (case-insensitive)
+  if (query) {
+    filtered = filtered.filter(agent => 
+      agent.name.toLowerCase().includes(query)
+    );
+  }
+  
+  // Filter by color
+  if (color) {
+    filtered = filtered.filter(agent => agent.color === color);
+  }
+  
+  return filtered;
+}
+
+// Render agents
 function renderAgents(items) {
   agentList.innerHTML = '';
 
@@ -33,11 +68,16 @@ function renderAgents(items) {
     return;
   }
 
-  items.forEach((agent) => {
+  items.forEach(agent => {
     const li = document.createElement('li');
     const button = document.createElement('button');
     button.className = 'agent-btn';
     button.textContent = `${agent.name} (${agent.role})`;
+    
+    if (selectedAgent && selectedAgent.id === agent.id) {
+      button.classList.add('selected');
+    }
+    
     button.addEventListener('click', () => {
       selectAgent(agent);
     });
@@ -78,13 +118,65 @@ function drawAgent(agent) {
   ctx.fillText(agent.role, 140, 74);
 }
 
+let currentTimeout = null;
+
 function selectAgent(agent) {
+  // Cancel any pending timeout
+  if (currentTimeout) {
+    clearTimeout(currentTimeout);
+  }
+  
+  selectedAgent = agent;
+  saveState();
+  
   suggestionPanel.textContent = `Analyzing ${agent.name}...`;
   const delayMs = agent.id === 'a1' ? 900 : 180;
 
-  // BUG: delayed updates are not cancelled or ignored, so stale clicks can overwrite newer selections.
-  setTimeout(() => {
+  currentTimeout = setTimeout(() => {
     suggestionPanel.textContent = agent.suggestion;
     drawAgent(agent);
+    renderAgents(filterAgents()); // Re-render to show selection
   }, delayMs);
 }
+
+// Initialize
+fetch('./data/agents.json')
+  .then((res) => res.json())
+  .then((data) => {
+    agents = data;
+    
+    // Populate color filter
+    const colors = getUniqueColors();
+    colors.forEach(color => {
+      const option = document.createElement('option');
+      option.value = color;
+      option.textContent = color;
+      colorFilter.appendChild(option);
+    });
+    
+    loadState();
+    const filtered = filterAgents();
+    renderAgents(filtered);
+    
+    // Restore selected agent visualization
+    if (selectedAgent) {
+      drawAgent(selectedAgent);
+      suggestionPanel.textContent = selectedAgent.suggestion;
+    } else {
+      drawPlaceholder();
+    }
+  })
+  .catch(() => {
+    suggestionPanel.textContent = 'Could not load agents data.';
+  });
+
+// Event listeners
+searchInput.addEventListener('input', () => {
+  saveState();
+  renderAgents(filterAgents());
+});
+
+colorFilter.addEventListener('change', () => {
+  saveState();
+  renderAgents(filterAgents());
+});

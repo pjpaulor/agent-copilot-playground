@@ -1,27 +1,89 @@
 const searchInput = document.getElementById('searchInput');
+const colorFilter = document.getElementById('colorFilter');
 const agentList = document.getElementById('agentList');
 const suggestionPanel = document.getElementById('suggestionPanel');
 const canvas = document.getElementById('vizCanvas');
 const ctx = canvas.getContext('2d');
 
 let agents = [];
+let selectedAgentId = null;
+
+// Load persisted state from localStorage
+function loadPersistedState() {
+  const savedSearch = localStorage.getItem('agentSearch');
+  const savedColor = localStorage.getItem('agentColor');
+  const savedAgent = localStorage.getItem('selectedAgentId');
+  
+  if (savedSearch) searchInput.value = savedSearch;
+  if (savedColor) colorFilter.value = savedColor;
+  if (savedAgent) selectedAgentId = savedAgent;
+}
+
+// Save state to localStorage
+function saveState() {
+  localStorage.setItem('agentSearch', searchInput.value);
+  localStorage.setItem('agentColor', colorFilter.value);
+  if (selectedAgentId) {
+    localStorage.setItem('selectedAgentId', selectedAgentId);
+  }
+}
+
+// Filter agents by search query (case-insensitive) and color
+function filterAgents(agentList) {
+  const query = searchInput.value.trim().toLowerCase();
+  const color = colorFilter.value;
+  
+  return agentList.filter((agent) => {
+    // Case-insensitive search
+    const matchesSearch = query === '' || agent.name.toLowerCase().includes(query);
+    // Exact color match
+    const matchesColor = color === '' || agent.color === color;
+    return matchesSearch && matchesColor;
+  });
+}
 
 fetch('./data/agents.json')
   .then((res) => res.json())
   .then((data) => {
     agents = data;
-    renderAgents(agents);
+    loadPersistedState();
+    applyFiltersAndRender();
     drawPlaceholder();
   })
   .catch(() => {
     suggestionPanel.textContent = 'Could not load agents data.';
   });
 
-searchInput.addEventListener('input', (event) => {
-  const query = event.target.value.trim();
-  const filtered = agents.filter((agent) => agent.name.includes(query)); // BUG: search is case-sensitive
-  renderAgents(filtered);
+searchInput.addEventListener('input', () => {
+  saveState();
+  applyFiltersAndRender();
 });
+
+colorFilter.addEventListener('change', () => {
+  saveState();
+  applyFiltersAndRender();
+});
+
+function applyFiltersAndRender() {
+  const filtered = filterAgents(agents);
+  
+  // Preserve selected agent if still visible, otherwise select first
+  const selectedVisible = filtered.find(a => a.id === selectedAgentId);
+  if (!selectedVisible && filtered.length > 0) {
+    selectedAgentId = filtered[0].id;
+    saveState();
+  }
+  
+  renderAgents(filtered);
+  
+  // If we have a selected agent that's visible, show it
+  if (selectedVisible) {
+    selectAgent(selectedVisible);
+  } else {
+    drawPlaceholder();
+    suggestionPanel.textContent = 'Select an agent to see a suggestion.';
+  }
+}
 
 function renderAgents(items) {
   agentList.innerHTML = '';
@@ -37,6 +99,11 @@ function renderAgents(items) {
     const li = document.createElement('li');
     const button = document.createElement('button');
     button.className = 'agent-btn';
+    // Highlight selected agent
+    if (agent.id === selectedAgentId) {
+      button.style.background = '#e8f4fd';
+      button.style.borderColor = '#3498db';
+    }
     button.textContent = `${agent.name} (${agent.role})`;
     button.addEventListener('click', () => {
       selectAgent(agent);
@@ -79,12 +146,17 @@ function drawAgent(agent) {
 }
 
 function selectAgent(agent) {
+  selectedAgentId = agent.id;
+  saveState();
+  
   suggestionPanel.textContent = `Analyzing ${agent.name}...`;
   const delayMs = agent.id === 'a1' ? 900 : 180;
 
-  // BUG: delayed updates are not cancelled or ignored, so stale clicks can overwrite newer selections.
   setTimeout(() => {
     suggestionPanel.textContent = agent.suggestion;
     drawAgent(agent);
   }, delayMs);
+  
+  // Re-render to highlight selected
+  applyFiltersAndRender();
 }

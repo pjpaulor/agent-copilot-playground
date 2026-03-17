@@ -3,25 +3,67 @@ const agentList = document.getElementById('agentList');
 const suggestionPanel = document.getElementById('suggestionPanel');
 const canvas = document.getElementById('vizCanvas');
 const ctx = canvas.getContext('2d');
+const colorFilter = document.getElementById('colorFilter');
 
 let agents = [];
+let currentSelectionId = null; // Track current selection to prevent stale overwrites
+
+// Load persisted filters from localStorage
+function loadFilters() {
+  const savedSearch = localStorage.getItem('agentSearch');
+  const savedColor = localStorage.getItem('agentColor');
+  if (savedSearch) searchInput.value = savedSearch;
+  if (savedColor) colorFilter.value = savedColor;
+}
+
+// Save filters to localStorage
+function saveFilters() {
+  localStorage.setItem('agentSearch', searchInput.value);
+  localStorage.setItem('agentColor', colorFilter.value || '');
+}
+
+// Filter agents by search query (case-insensitive) and color
+function filterAgents() {
+  const query = searchInput.value.trim().toLowerCase();
+  const color = colorFilter.value;
+  
+  let filtered = agents;
+  
+  // Case-insensitive search
+  if (query) {
+    filtered = filtered.filter((agent) => 
+      agent.name.toLowerCase().includes(query)
+    );
+  }
+  
+  // Filter by exact color
+  if (color) {
+    filtered = filtered.filter((agent) => agent.color === color);
+  }
+  
+  renderAgents(filtered);
+  saveFilters();
+}
+
+// Get the first agent from filtered list (for auto-select)
+function getFirstOrNone(items) {
+  return items.length > 0 ? items[0] : null;
+}
 
 fetch('./data/agents.json')
   .then((res) => res.json())
   .then((data) => {
     agents = data;
-    renderAgents(agents);
+    loadFilters();
+    filterAgents(); // Apply filters on load
     drawPlaceholder();
   })
   .catch(() => {
     suggestionPanel.textContent = 'Could not load agents data.';
   });
 
-searchInput.addEventListener('input', (event) => {
-  const query = event.target.value.trim();
-  const filtered = agents.filter((agent) => agent.name.includes(query)); // BUG: search is case-sensitive
-  renderAgents(filtered);
-});
+searchInput.addEventListener('input', filterAgents);
+colorFilter.addEventListener('change', filterAgents);
 
 function renderAgents(items) {
   agentList.innerHTML = '';
@@ -81,10 +123,16 @@ function drawAgent(agent) {
 function selectAgent(agent) {
   suggestionPanel.textContent = `Analyzing ${agent.name}...`;
   const delayMs = agent.id === 'a1' ? 900 : 180;
+  
+  // FIX: Track the selection ID and only update if it's still current
+  currentSelectionId = agent.id;
+  const thisSelectionId = currentSelectionId;
 
-  // BUG: delayed updates are not cancelled or ignored, so stale clicks can overwrite newer selections.
   setTimeout(() => {
-    suggestionPanel.textContent = agent.suggestion;
-    drawAgent(agent);
+    // Only update if this is still the current selection
+    if (currentSelectionId === thisSelectionId) {
+      suggestionPanel.textContent = agent.suggestion;
+      drawAgent(agent);
+    }
   }, delayMs);
 }

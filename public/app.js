@@ -16,10 +16,11 @@ fetch('./data/agents.json')
   .catch(() => {
     suggestionPanel.textContent = 'Could not load agents data.';
   });
-
 searchInput.addEventListener('input', (event) => {
   const query = event.target.value.trim();
-  const filtered = agents.filter((agent) => agent.name.includes(query)); // BUG: search is case-sensitive
+  const filtered = agents.filter((agent) =>
+    agent.name.toLowerCase().includes(query.toLowerCase()),
+  );
   renderAgents(filtered);
 });
 

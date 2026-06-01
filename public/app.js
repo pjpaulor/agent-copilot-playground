@@ -16,20 +16,40 @@ fetch('./data/agents.json')
   .catch(() => {
     suggestionPanel.textContent = 'Could not load agents data.';
   });
+
+let searchColor = '';
+let searchInputText = '';
+
 searchInput.addEventListener('input', (event) => {
-  const query = event.target.value.trim();
-  const filtered = agents.filter((agent) =>
-    agent.name.toLowerCase().includes(query.toLowerCase()),
-  );
-  renderAgents(filtered);
+  searchInputText = event.target.value.trim();
+  filterAgents();
 });
+
+colorSelect.addEventListener('change', (event) => {
+  searchColor = event.target.value;
+  filterAgents();
+});
+
+function filterAgents() {
+  const filtered = agents.filter((agent) => {
+    const matchesName = agent.name
+      .toLowerCase()
+      .includes(searchInputText.toLowerCase());
+    const matchesColor = agent.color
+      .toLowerCase()
+      .includes(searchColor.toLowerCase());
+
+    return matchesName && matchesColor;
+  });
+  renderAgents(filtered);
+}
 
 function renderAgents(items) {
   agentList.innerHTML = '';
 
   if (!items.length) {
     const empty = document.createElement('li');
-    empty.textContent = 'No agents found.';
+    empty.textContent = 'No agents found';
     agentList.appendChild(empty);
     return;
   }

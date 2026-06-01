@@ -5,12 +5,22 @@ const canvas = document.getElementById('vizCanvas');
 const ctx = canvas.getContext('2d');
 
 let agents = [];
+let selectedAgent;
+let searchColor = '';
+let searchInputText = '';
 
 fetch('./data/agents.json')
   .then((res) => res.json())
   .then((data) => {
     agents = data;
-    renderAgents(agents);
+
+    searchInputText = localStorage.getItem('search_text') || '';
+    searchColor = localStorage.getItem('search_color') || '';
+
+    searchInput.value = searchInputText;
+    colorSelect.value = searchColor;
+
+    filterAgents();
     drawPlaceholder();
   })
   .catch(() => {
@@ -18,17 +28,39 @@ fetch('./data/agents.json')
   });
 
 searchInput.addEventListener('input', (event) => {
-  const query = event.target.value.trim();
-  const filtered = agents.filter((agent) => agent.name.includes(query)); // BUG: search is case-sensitive
-  renderAgents(filtered);
+  searchInputText = event.target.value.trim();
+  filterAgents();
 });
+
+colorSelect.addEventListener('change', (event) => {
+  searchColor = event.target.value;
+  filterAgents();
+});
+
+function filterAgents() {
+  localStorage.setItem('search_text', searchInputText);
+  localStorage.setItem('search_color', searchColor);
+
+  const filtered = agents.filter((agent) => {
+    const matchesName = agent.name
+      .toLowerCase()
+      .includes(searchInputText.toLowerCase());
+    const matchesColor = agent.color
+      .toLowerCase()
+      .includes(searchColor.toLowerCase());
+    return matchesName && matchesColor;
+  });
+
+  if (!filtered.includes(selectedAgent)) selectAgent(filtered[0]);
+  renderAgents(filtered);
+}
 
 function renderAgents(items) {
   agentList.innerHTML = '';
 
   if (!items.length) {
     const empty = document.createElement('li');
-    empty.textContent = 'No agents found.';
+    empty.textContent = 'No agents found';
     agentList.appendChild(empty);
     return;
   }
@@ -79,6 +111,7 @@ function drawAgent(agent) {
 }
 
 function selectAgent(agent) {
+  selectedAgent = agent;
   suggestionPanel.textContent = `Analyzing ${agent.name}...`;
   const delayMs = agent.id === 'a1' ? 900 : 180;
 

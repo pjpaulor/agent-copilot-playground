@@ -12,12 +12,23 @@
       <header class="hero">
         <p class="kicker">Frontend Experiment</p>
         <h1>Agent Playground</h1>
-        <p class="subtitle">Tiny interface for testing coding copilots on realistic UI edits.</p>
+        <p class="subtitle">
+          Tiny interface for testing coding copilots on realistic UI edits.
+        </p>
       </header>
 
       <section class="panel">
-        <label for="searchInput">Search agents</label>
-        <input id="searchInput" type="text" placeholder="Type a name..." />
+        <h3>Search agents</h3>
+        <div class="search-methods-container">
+          <input id="searchInput" type="text" placeholder="Type a name..." />
+          <select id="colorSelect">
+            <option value="">All colors</option>
+            <option value="#ff6b6b">Red</option>
+            <option value="#4dabf7">Blue</option>
+            <option value="#51cf66">Green</option>
+            <option value="#fcc419">Yellow</option>
+          </select>
+        </div>
       </section>
 
       <section class="layout">
@@ -29,7 +40,12 @@
         <div class="panel">
           <h2>Suggestion</h2>
           <div id="suggestionPanel">Select an agent to see a suggestion.</div>
-          <canvas id="vizCanvas" width="260" height="120" aria-label="Agent visualization"></canvas>
+          <canvas
+            id="vizCanvas"
+            width="260"
+            height="120"
+            aria-label="Agent visualization"
+          ></canvas>
         </div>
       </section>
     </main>

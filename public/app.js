@@ -6,20 +6,26 @@ const ctx = canvas.getContext('2d');
 
 let agents = [];
 let selectedAgent;
+let searchColor = '';
+let searchInputText = '';
 
 fetch('./data/agents.json')
   .then((res) => res.json())
   .then((data) => {
     agents = data;
-    renderAgents(agents);
+
+    searchInputText = localStorage.getItem('search_text') || '';
+    searchColor = localStorage.getItem('search_color') || '';
+
+    searchInput.value = searchInputText;
+    colorSelect.value = searchColor;
+
+    filterAgents();
     drawPlaceholder();
   })
   .catch(() => {
     suggestionPanel.textContent = 'Could not load agents data.';
   });
-
-let searchColor = '';
-let searchInputText = '';
 
 searchInput.addEventListener('input', (event) => {
   searchInputText = event.target.value.trim();
@@ -32,6 +38,9 @@ colorSelect.addEventListener('change', (event) => {
 });
 
 function filterAgents() {
+  localStorage.setItem('search_text', searchInputText);
+  localStorage.setItem('search_color', searchColor);
+
   const filtered = agents.filter((agent) => {
     const matchesName = agent.name
       .toLowerCase()

@@ -5,6 +5,7 @@ const canvas = document.getElementById('vizCanvas');
 const ctx = canvas.getContext('2d');
 
 let agents = [];
+let selectedAgent;
 
 fetch('./data/agents.json')
   .then((res) => res.json())
@@ -38,9 +39,10 @@ function filterAgents() {
     const matchesColor = agent.color
       .toLowerCase()
       .includes(searchColor.toLowerCase());
-
     return matchesName && matchesColor;
   });
+
+  if (!filtered.includes(selectedAgent)) selectAgent(filtered[0]);
   renderAgents(filtered);
 }
 
@@ -100,6 +102,7 @@ function drawAgent(agent) {
 }
 
 function selectAgent(agent) {
+  selectedAgent = agent;
   suggestionPanel.textContent = `Analyzing ${agent.name}...`;
   const delayMs = agent.id === 'a1' ? 900 : 180;
 
